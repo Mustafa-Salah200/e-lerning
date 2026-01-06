@@ -141,7 +141,7 @@ export default function AssignmentSubmissions() {
     <div className="min-h-screen bg-background">
       <AppSidebar userType="teacher" userName={profile?.full_name || "Teacher"} onLogout={handleLogout} />
       
-      <main className="pl-64 transition-all duration-300">
+      <main className="transition-all duration-300 md:pl-64">
         <Header 
           title={assignment?.title || "Assignment"} 
           subtitle="Review and grade submissions" 

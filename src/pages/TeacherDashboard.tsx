@@ -16,6 +16,7 @@ export default function TeacherDashboard() {
   const { user, profile, signOut } = useAuth();
   const { fetchTeacherCourses, loading } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [stats, setStats] = useState({
     totalCourses: 0,
     totalStudents: 0,
@@ -47,12 +48,22 @@ export default function TeacherDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar userType="teacher" userName={profile?.full_name || "Teacher"} onLogout={handleLogout} />
+      <AppSidebar
+        userType="teacher"
+        userName={profile?.full_name || "Teacher"}
+        onLogout={handleLogout}
+        mobileOpen={mobileSidebarOpen}
+        onMobileOpenChange={setMobileSidebarOpen}
+      />
       
-      <main className="pl-64 transition-all duration-300">
-        <Header title="Teacher Dashboard" subtitle="Manage your courses and students" />
+      <main className="transition-all duration-300 md:pl-64">
+        <Header
+          title="Teacher Dashboard"
+          subtitle="Manage your courses and students"
+          onMenuClick={() => setMobileSidebarOpen(true)}
+        />
         
-        <div className="p-6 space-y-8">
+        <div className="space-y-8 p-4 md:p-6">
           {/* Stats */}
           <div className="grid gap-4 md:grid-cols-3">
             <Card variant="elevated">
@@ -99,13 +110,15 @@ export default function TeacherDashboard() {
           {/* Main Content */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* My Courses */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-heading text-xl font-semibold">My Courses</h2>
                   <p className="text-sm text-muted-foreground">Manage and monitor your courses</p>
                 </div>
-                <CreateCourseDialog onCourseCreated={loadData} />
+                <div className="w-full sm:w-auto">
+                  <CreateCourseDialog onCourseCreated={loadData} />
+                </div>
               </div>
 
               {loading ? (

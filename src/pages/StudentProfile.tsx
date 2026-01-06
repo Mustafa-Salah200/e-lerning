@@ -78,7 +78,7 @@ export default function StudentProfile() {
     <div className="min-h-screen bg-background">
       <AppSidebar userType="student" userName={profile?.full_name || "Student"} onLogout={handleLogout} />
       
-      <main className="pl-64 transition-all duration-300">
+      <main className="transition-all duration-300 md:pl-64">
         <Header title="My Profile" subtitle="Manage your account settings" />
         
         <div className="p-6 max-w-4xl">

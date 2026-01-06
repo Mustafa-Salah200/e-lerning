@@ -1,20 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  BookOpen, 
-  GraduationCap, 
-  Users, 
-  LayoutDashboard,
-  Calendar,
-  Award,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  Bell
-} from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, GraduationCap, LayoutDashboard, LogOut, Menu, Settings } from "lucide-react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface NavItem {
   title: string;
@@ -38,19 +28,34 @@ interface SidebarProps {
   userName: string;
   userAvatar?: string;
   onLogout?: () => void;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
 }
 
-export function AppSidebar({ userType, userName, userAvatar, onLogout }: SidebarProps) {
+export function AppSidebar({
+  userType,
+  userName,
+  userAvatar,
+  onLogout,
+  mobileOpen,
+  onMobileOpenChange,
+}: SidebarProps) {
   const location = useLocation();
+  const isMobile = useIsMobile();
   const [collapsed, setCollapsed] = useState(false);
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+
+  const isMobileOpen = mobileOpen ?? internalMobileOpen;
+  const setMobileOpen = onMobileOpenChange ?? setInternalMobileOpen;
+  const renderDefaultTrigger = isMobile && mobileOpen === undefined && onMobileOpenChange === undefined;
   
   const navItems = userType === "student" ? studentNavItems : teacherNavItems;
-  
-  return (
-    <aside 
+
+  const sidebarContent = (
+    <div
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-card transition-all duration-300",
-        collapsed ? "w-20" : "w-64"
+        "flex h-full flex-col border-border bg-card",
+        collapsed ? "w-20" : "w-64",
       )}
     >
       {/* Logo */}
@@ -64,7 +69,7 @@ export function AppSidebar({ userType, userName, userAvatar, onLogout }: Sidebar
           </Link>
         )}
         {collapsed && (
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary mx-auto">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
             <GraduationCap className="h-6 w-6 text-primary-foreground" />
           </div>
         )}
@@ -83,7 +88,7 @@ export function AppSidebar({ userType, userName, userAvatar, onLogout }: Sidebar
                 isActive
                   ? "bg-primary/10 text-primary shadow-soft"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                collapsed && "justify-center px-3"
+                collapsed && "justify-center px-3",
               )}
             >
               <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-primary")} />
@@ -95,21 +100,23 @@ export function AppSidebar({ userType, userName, userAvatar, onLogout }: Sidebar
 
       {/* User Profile */}
       <div className="border-t border-border p-4">
-        <div className={cn(
-          "flex items-center gap-3 rounded-xl p-3 bg-muted/50",
-          collapsed && "justify-center p-2"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-xl bg-muted/50 p-3",
+            collapsed && "justify-center p-2",
+          )}
+        >
           <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-secondary text-secondary-foreground font-semibold">
             {userAvatar || userName.charAt(0).toUpperCase()}
           </div>
           {!collapsed && (
             <div className="flex-1 overflow-hidden">
-              <p className="truncate font-medium text-sm">{userName}</p>
-              <p className="truncate text-xs text-muted-foreground capitalize">{userType}</p>
+              <p className="truncate text-sm font-medium">{userName}</p>
+              <p className="truncate text-xs capitalize text-muted-foreground">{userType}</p>
             </div>
           )}
         </div>
-        
+
         <Button
           variant="ghost"
           className={cn("mt-3 w-full justify-start gap-3 text-muted-foreground", collapsed && "justify-center")}
@@ -121,16 +128,48 @@ export function AppSidebar({ userType, userName, userAvatar, onLogout }: Sidebar
       </div>
 
       {/* Collapse Toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card shadow-soft hover:bg-muted transition-colors"
-      >
-        {collapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
+      {!isMobile && (
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card shadow-soft transition-colors hover:bg-muted"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      )}
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        {renderDefaultTrigger && (
+          <Button
+            variant="outline"
+            size="icon"
+            className="fixed left-4 top-4 z-50 rounded-full shadow-lg md:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         )}
-      </button>
+        <Sheet open={isMobileOpen} onOpenChange={setMobileOpen}>
+          <SheetContent side="left" className="w-[280px] p-0">{/* Mobile drawer */}
+            <div className="flex h-full flex-col overflow-y-auto">{sidebarContent}</div>
+          </SheetContent>
+        </Sheet>
+      </>
+    );
+  }
+  
+  return (
+    <aside
+      className={cn(
+        "fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-border bg-card transition-all duration-300 md:flex",
+        collapsed ? "w-20" : "w-64",
+      )}
+    >
+      {sidebarContent}
     </aside>
   );
 }

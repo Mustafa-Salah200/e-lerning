@@ -16,6 +16,7 @@ export default function StudentDashboard() {
   const { profile, signOut } = useAuth();
   const { fetchEnrolledCourses, loading } = useCourses();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [stats, setStats] = useState({
     coursesEnrolled: 0,
     assignmentsCompleted: 0,
@@ -43,12 +44,22 @@ export default function StudentDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AppSidebar userType="student" userName={profile?.full_name || "Student"} onLogout={handleLogout} />
+      <AppSidebar
+        userType="student"
+        userName={profile?.full_name || "Student"}
+        onLogout={handleLogout}
+        mobileOpen={mobileSidebarOpen}
+        onMobileOpenChange={setMobileSidebarOpen}
+      />
       
-      <main className="pl-64 transition-all duration-300">
-        <Header title={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Student"}! 👋`} subtitle="Continue your learning journey" />
+      <main className="transition-all duration-300 md:pl-64">
+        <Header
+          title={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Student"}! 👋`}
+          subtitle="Continue your learning journey"
+          onMenuClick={() => setMobileSidebarOpen(true)}
+        />
         
-        <div className="p-6 space-y-8">
+        <div className="space-y-8 p-4 md:p-6">
           {/* Stats */}
           <div className="grid gap-4 md:grid-cols-3">
             <Card variant="elevated">
@@ -95,13 +106,13 @@ export default function StudentDashboard() {
           {/* Main Content */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Continue Learning */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-heading text-xl font-semibold">Continue Learning</h2>
                   <p className="text-sm text-muted-foreground">Pick up where you left off</p>
                 </div>
-                <Button variant="outline" onClick={() => navigate("/student/courses")}>
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate("/student/courses")}>
                   <BookOpen className="h-4 w-4 mr-2" />
                   Browse Courses
                 </Button>

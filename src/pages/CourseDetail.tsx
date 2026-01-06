@@ -148,7 +148,7 @@ export default function CourseDetail() {
         onLogout={handleLogout}
       />
       
-      <main className="pl-64 transition-all duration-300">
+      <main className="transition-all duration-300 md:pl-64">
         <Header title={course.title} subtitle={`By ${course.teacher_name}`} />
         
         <div className="p-6 space-y-6">
